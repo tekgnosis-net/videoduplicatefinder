@@ -11,7 +11,7 @@ Video Duplicate Finder is a cross-platform software to find duplicated video (an
 
 # Binaries
 
-[Daily build](https://github.com/tekgnosis-net/videoduplicatefinder/releases/tag/v3.1.x) (You need FFmpeg and FFprobe, see below! Please note the attachments of this release are automatically created and replaced on every new commit.)
+[Latest Release](https://github.com/tekgnosis-net/videoduplicatefinder/releases/latest) (You need FFmpeg and FFprobe, see below! For the latest pre-built binaries, check the releases page.)
 
 
 # Requirements

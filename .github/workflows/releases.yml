@@ -45,7 +45,14 @@ jobs:
     - name: Declare some variables
       id: vars
       shell: bash
-      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: |
+        echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        # Extract version from Directory.Build.props
+        VERSION_PREFIX=$(grep -oP '(?<=<VersionPrefix>)[^<]+' Directory.Build.props)
+        TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+        RELEASE_TAG="v${VERSION_PREFIX}-${TIMESTAMP}"
+        echo "release_tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+        echo "version_prefix=${VERSION_PREFIX}" >> $GITHUB_OUTPUT
     - name: Build
       shell: bash
       run: |
@@ -67,11 +74,28 @@ jobs:
     - name: Publish
       uses: softprops/action-gh-release@v2
       with:
-          tag_name: v3.1.x
+          tag_name: ${{ steps.vars.outputs.release_tag }}
           files: App*
           body: |
-            Note: These are daily builds. Attachments are automatically created and replaced on every new commit. Regardless of what the message above says. If you experience upgrade issues you may need to delete your 'ScannedFiles.db' file in VDF folder.
-            Last build based on ${{ steps.vars.outputs.sha_short }}
+            ## Video Duplicate Finder v${{ steps.vars.outputs.version_prefix }}
+            
+            Cross-platform duplicate video/image finder using similarity detection.
+            
+            ### What's Included
+            - Pre-built binaries for Windows, macOS, and Linux (x64 and ARM64)
+            - FFmpeg binaries included (no separate download required)
+            - Ready to run out of the box
+            
+            ### Installation
+            1. Download the appropriate file for your platform
+            2. Extract the archive
+            3. Run the executable
+            
+            ### Notes
+            - If you experience upgrade issues, delete your 'ScannedFiles.db' file in VDF folder
+            - Built from commit ${{ steps.vars.outputs.sha_short }}
+            
+            For Docker usage: `docker pull ghcr.io/tekgnosis-net/videoduplicatefinder:latest`
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
