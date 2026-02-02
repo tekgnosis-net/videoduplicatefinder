@@ -38,7 +38,7 @@ COPY ["Directory.Build.props", "./"]
 RUN dotnet nuget add source https://www.myget.org/F/sixlabors/api/v3/index.json
 
 # Restore dependencies
-RUN dotnet restore "VDF.GUI/VDF.GUI.csproj"
+RUN dotnet restore "VDF.GUI/VDF.GUI.csproj" -r linux-x64
 
 # Copy source code
 COPY . .
