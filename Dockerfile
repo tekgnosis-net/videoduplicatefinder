@@ -1,5 +1,5 @@
 # Use .NET 9 runtime as base
-FROM mcr.microsoft.com/dotnet/runtime:9.0-jammy AS base
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
 
 # Install FFmpeg and required dependencies
 RUN apt-get update && apt-get install -y \
@@ -26,7 +26,7 @@ RUN groupadd -r vdfuser && useradd -r -g vdfuser vdfuser
 RUN chown -R vdfuser:vdfuser /app
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0-jammy AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy project files
