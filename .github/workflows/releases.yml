@@ -47,8 +47,8 @@ jobs:
       shell: bash
       run: |
         echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-        # Extract version from Directory.Build.props
-        VERSION_PREFIX=$(grep -oP '(?<=<VersionPrefix>)[^<]+' Directory.Build.props)
+        # Extract version from Directory.Build.props (cross-platform compatible)
+        VERSION_PREFIX=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' Directory.Build.props)
         TIMESTAMP=$(date +"%Y%m%d%H%M%S")
         RELEASE_TAG="v${VERSION_PREFIX}-${TIMESTAMP}"
         echo "release_tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
