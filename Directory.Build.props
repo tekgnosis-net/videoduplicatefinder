@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <!-- Semantic Versioning -->
+    <VersionPrefix>3.1.0</VersionPrefix>
+    <VersionSuffix Condition="'$(GITHUB_REF_TYPE)' != 'tag'">beta</VersionSuffix>
+    
+    <!-- Assembly Information -->
+    <Product>Video Duplicate Finder</Product>
+    <Company>tekgnosis-net</Company>
+    <Copyright>Copyright (C) 2025 tekgnosis-net</Copyright>
+    <Description>Cross-platform duplicate video/image finder using similarity detection</Description>
+    
+    <!-- Repository Information -->
+    <RepositoryUrl>https://github.com/tekgnosis-net/videoduplicatefinder</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <!-- Package Information -->
+    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/tekgnosis-net/videoduplicatefinder</PackageProjectUrl>
+    
+    <!-- Enable Source Link for debugging -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,116 @@
+services:
+  video-duplicate-finder:
+    image: ghcr.io/tekgnosis-net/videoduplicatefinder:latest
+    container_name: video-duplicate-finder
+    restart: unless-stopped
+    
+    environment:
+      # Application Configuration
+      - VDF_LANGUAGE=${VDF_LANGUAGE:-en}
+      - VDF_THRESHOLD=${VDF_THRESHOLD:-5}
+      - VDF_PERCENT=${VDF_PERCENT:-96}
+      - VDF_USE_NATIVE_FFMPEG=${VDF_USE_NATIVE_FFMPEG:-false}
+      - VDF_HARDWARE_ACCELERATION=${VDF_HARDWARE_ACCELERATION:-none}
+      
+      # Scan Configuration
+      - VDF_INCLUDE_IMAGES=${VDF_INCLUDE_IMAGES:-true}
+      - VDF_INCLUDE_SUBDIRS=${VDF_INCLUDE_SUBDIRS:-true}
+      - VDF_IGNORE_READONLY=${VDF_IGNORE_READONLY:-true}
+      - VDF_SCAN_DIRS=${VDF_SCAN_DIRS:-/app/data/videos}
+      
+      # Storage Configuration
+      - VDF_DATABASE_PATH=${VDF_DATABASE_PATH:-/app/data/ScannedFiles.db}
+      - VDF_DATA_DIR=${VDF_DATA_DIR:-/app/data}
+      - VDF_CONFIG_DIR=${VDF_CONFIG_DIR:-/app/config}
+      
+      # Logging
+      - VDF_LOG_LEVEL=${VDF_LOG_LEVEL:-Information}
+      
+    volumes:
+      # Application data and database
+      - ${VDF_HOST_DATA_DIR:-./data}:/app/data
+      
+      # Configuration files
+      - ${VDF_HOST_CONFIG_DIR:-./config}:/app/config
+      
+      # Videos to scan (adjust paths as needed)
+      - ${VDF_HOST_VIDEOS_DIR:-./videos}:/app/data/videos:ro
+      
+      # Additional scan directories (optional)
+      # Add more volume mounts for different video directories
+      # - /path/to/movies:/app/data/movies:ro
+      # - /path/to/shows:/app/data/shows:ro
+      
+    ports:
+      # Future web interface port
+      - "${VDF_WEB_PORT:-8080}:8080"
+      
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '${VDF_CPU_LIMIT:-2.0}'
+          memory: ${VDF_MEMORY_LIMIT:-2G}
+        reservations:
+          cpus: '${VDF_CPU_RESERVATION:-0.5}'
+          memory: ${VDF_MEMORY_RESERVATION:-512M}
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/VDF.GUI.dll"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Optional: Database backup service
+  vdf-backup:
+    image: alpine:latest
+    container_name: vdf-backup
+    restart: "no"
+    profiles: ["backup"]
+    
+    volumes:
+      - ${VDF_HOST_DATA_DIR:-./data}:/data:ro
+      - ${VDF_HOST_BACKUP_DIR:-./backups}:/backups
+      
+    environment:
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+      
+    command: |
+      sh -c '
+        apk add --no-cache tar gzip
+        BACKUP_FILE="/backups/vdf-backup-$$(date +%Y%m%d_%H%M%S).tar.gz"
+        echo "Creating backup: $$BACKUP_FILE"
+        tar -czf "$$BACKUP_FILE" -C /data .
+        echo "Backup created successfully"
+        
+        # Cleanup old backups
+        find /backups -name "vdf-backup-*.tar.gz" -mtime +$$BACKUP_RETENTION_DAYS -delete
+        echo "Old backups cleaned up"
+      '
+
+volumes:
+  # Named volumes for better management
+  vdf_data:
+    driver: local
+  vdf_config:
+    driver: local
+
+networks:
+  default:
+    name: vdf_network

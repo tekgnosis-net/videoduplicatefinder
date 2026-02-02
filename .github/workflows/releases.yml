@@ -1,7 +1,10 @@
 name: Build releases
 
-
 on: [push]
+
+permissions:
+  contents: write
+  actions: read
     
 jobs:
   build:

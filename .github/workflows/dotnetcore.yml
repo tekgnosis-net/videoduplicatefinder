@@ -2,16 +2,20 @@ name: Windows 64-bit
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+    - name: Add nuget sources
+      run: dotnet nuget add source https://www.myget.org/F/sixlabors/api/v3/index.json
     - name: Build with dotnet
-      run: dotnet publish -c Release -v q --self-contained -r win-x64
+      run: dotnet publish ./VDF.GUI/VDF.GUI.csproj -c Release -v q --self-contained -r win-x64
